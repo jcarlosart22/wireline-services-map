@@ -15,6 +15,14 @@
 .modal{position:fixed;inset:0;background:rgba(0,0,0,.72);display:none;align-items:center;justify-content:center;padding:18px;z-index:20}.modal.open{display:flex}.modal-box{width:min(900px,100%);max-height:90vh;overflow:auto;background:#091625;border:1px solid #345371;border-radius:24px;padding:28px;box-shadow:0 25px 80px #000}.close{float:right;border:1px solid #345371;background:#102236;color:#fff;border-radius:12px;padding:9px 13px;cursor:pointer;font-size:18px}.modal h2{font-size:34px;margin:5px 50px 18px 0}.modal .lead{color:#c4d1dc;font-size:18px;line-height:1.55}.detailgrid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:22px}.detail{border:1px solid #29435e;border-radius:16px;padding:18px;background:#0d1c2c}.detail h4{margin:0 0 8px;color:var(--accent2)}.detail p{margin:0;color:#b8c6d2;line-height:1.5}.visual{height:190px;border-radius:18px;margin:20px 0;background:linear-gradient(135deg,#173c55,#0a1827);border:1px solid #29435e;display:flex;align-items:center;justify-content:center}.visual svg{width:230px;height:150px}
 footer{margin-top:50px;text-align:center;color:#73889b;font-size:13px}
 @media(max-width:760px){.wrap{padding:24px 18px 55px}.layers{grid-template-columns:1fr}.detailgrid{grid-template-columns:1fr}.section-head{min-height:190px;padding:24px}.section-head h2{font-size:32px}.card{min-height:0}.hero h1{font-size:48px}}
+
+.photo-strip{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:18px 0}
+.photo-strip figure{margin:0;border:1px solid var(--line,#29435e);border-radius:14px;overflow:hidden;background:#0d1c2c}
+.photo-strip img{width:100%;height:150px;object-fit:contain;background:#071522;display:block}
+.photo-strip figcaption{padding:8px 10px;font-size:11px;color:#9fb0c4}
+@media(max-width:700px){.photo-strip{grid-template-columns:1fr 1fr}.photo-strip img{height:125px}}
+@media(max-width:430px){.photo-strip{grid-template-columns:1fr}}
+
 </style>
 </head>
 <body>
@@ -41,7 +49,7 @@ footer{margin-top:50px;text-align:center;color:#73889b;font-size:13px}
 
 <div class="modal" id="modal"><div class="modal-box">
 <button class="close" id="close">×</button>
-<h2 id="mTitle"></h2><p class="lead" id="mLead"></p><div class="visual" id="mVisual"></div><div class="detailgrid" id="mDetails"></div>
+<h2 id="mTitle"></h2><p class="lead" id="mLead"></p><div class="visual" id="mVisual"></div><div id="mPhotos"></div><div class="detailgrid" id="mDetails"></div>
 </div></div>
 
 <script>
@@ -81,9 +89,19 @@ document.getElementById("sections").innerHTML=cats.map(c=>`<section class="secti
 document.querySelectorAll(".card").forEach(el=>el.onclick=()=>openModal(data[+el.dataset.i]));
 }
 document.querySelectorAll(".tab").forEach(t=>t.onclick=()=>{document.querySelectorAll(".tab").forEach(x=>x.classList.remove("active"));t.classList.add("active");render(t.dataset.cat);window.scrollTo({top:document.getElementById("sections").offsetTop-20,behavior:"smooth"});});
-function openModal(x){document.getElementById("mTitle").textContent=x.title;document.getElementById("mLead").textContent=x.lead;document.getElementById("mVisual").innerHTML=icon(x.icon);document.getElementById("mDetails").innerHTML=x.d.map(a=>`<div class="detail"><h4>${a[0]}</h4><p>${a[1]}</p></div>`).join("");document.getElementById("modal").classList.add("open")}
+function openModal(x){document.getElementById("mTitle").textContent=x.title;
+renderPhotoGallery(document.getElementById("mTitle").textContent);document.getElementById("mLead").textContent=x.lead;document.getElementById("mVisual").innerHTML=icon(x.icon);document.getElementById("mDetails").innerHTML=x.d.map(a=>`<div class="detail"><h4>${a[0]}</h4><p>${a[1]}</p></div>`).join("");document.getElementById("modal").classList.add("open")}
 document.getElementById("close").onclick=()=>document.getElementById("modal").classList.remove("open");
 document.getElementById("modal").onclick=e=>{if(e.target.id==="modal")e.currentTarget.classList.remove("open")};
 render("all");
+
+function renderPhotoGallery(title){
+  const box=document.getElementById('mPhotos');
+  if(!box) return;
+  const map = {'Flow profiling': [('https://www.weatherford.com/drilling-and-evaluation/wireline-products/production-analysis/full-bore-spinner-mechanical-tool/', 'Weatherford full-bore spinner'), ('https://www.bakerhughes.com/sondex/sondex-casedhole-logging/sondex-production-logging-0', 'Sondex production logging tool'), ('https://www.weatherford.com/drilling-and-evaluation/wireline-products/production-analysis/array-fluid-velocity-resistance-capacitance-tool/', 'Array production logging tool')], 'Spinner / velocity': [('https://www.weatherford.com/drilling-and-evaluation/wireline-products/production-analysis/fixed-cage-spinner-mechanical-impeller/', 'Fixed-cage spinner'), ('https://www.bakerhughes.com/sondex/sondex-casedhole-logging/sondex-production-logging-0', 'Sondex spinner array')], 'Multiphase profiling': [('https://www.bakerhughes.com/sondex/sondex-casedhole-logging/sondex-production-logging-0', 'Sondex multiphase production logging'), ('https://www.weatherford.com/drilling-and-evaluation/wireline-products/production-analysis/array-fluid-velocity-resistance-capacitance-tool/', 'Array multiphase sensor')], 'Temperature': [('https://www.weatherford.com/drilling-and-evaluation/wireline-products/production-analysis/flowmeter-and-temperature-electronics-tool/', 'Flowmeter and temperature electronics'), ('https://www.bakerhughes.com/sondex/sondex-casedhole-logging/sondex-production-logging-0', 'Sondex temperature gauge')], 'Pressure': [('https://www.bakerhughes.com/sondex/sondex-casedhole-logging/sondex-production-logging-0', 'Sondex quartz pressure sensor'), ('https://www.weatherford.com/drilling-and-evaluation/wireline-products/cased-hole-formation-evaluation/quantum-geothermal-pts-gauge/', 'Production pressure-temperature gauge')], 'Leak detection': [('https://www.weatherford.com/drilling-and-evaluation/wireline-products/production-analysis/flowmeter-and-temperature-electronics-tool/', 'Leak-diagnostic flow/temperature tool'), ('https://www.bakerhughes.com/sondex/sondex-casedhole-logging/sondex-production-logging-0', 'Sondex noise/leak diagnostic')], 'Casing inspection': [('https://www.gowellpetro.com/services-1', 'Well-integrity inspection technology'), ('https://www.bakerhughes.com/sondex/sondex-casedhole-logging', 'Sondex cased-hole integrity tools'), ('https://www.weatherford.com/drilling-and-evaluation/wireline-products/production-analysis/', 'Caliper / tubular inspection')], 'Cement evaluation': [('https://www.bakerhughes.com/sondex/sondex-casedhole-logging', 'Cased-hole cement evaluation'), ('https://www.gowellpetro.com/services-1', 'Well-integrity analysis technology')], 'Mechanical intervention': [('https://www.bakerhughes.com/sondex/sondex-casedhole-logging/sondex-well-intervention-tools-0', 'Sondex wireline intervention'), ('https://www.bakerhughes.com/sondex/sondex-conveyance-equipment', 'Wireline conveyance/intervention')], 'Conveyance': [('https://www.bakerhughes.com/sondex/sondex-conveyance-equipment', 'Sondex wireline tractor'), ('https://www.bakerhughes.com/sondex/sondex-well-intervention-tools-0', 'Wireline intervention platform')]};
+  const arr=map[title]||[];
+  box.innerHTML=arr.length?'<div class="photo-strip">'+arr.map(x=>`<figure><a href="${x[0]}" target="_blank" rel="noopener"><div style="height:150px;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#173c55,#0a1827);color:#8ee6dc;font-weight:800;font-size:13px;text-align:center;padding:14px">VIEW TECHNICAL TOOL PHOTO</div></a><figcaption>${x[1]} · representative technical visual</figcaption></figure>`).join('')+'</div>':'';
+}
+
 </script>
 </body></html>
